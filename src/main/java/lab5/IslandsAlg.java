@@ -17,9 +17,10 @@ public class IslandsAlg {
 
     public static void main(String[] args) {
         int dimension = 50; // dimension of problem
-        int complexity = 1; // fitness estimation time multiplicator
+        int complexity = 3; // fitness estimation time multiplicator
         int populationSize = 50; // size of population
         int generations = 10; // number of generations
+        int epochLength = 50;
 
         Random random = new Random(); // random
 
@@ -34,24 +35,33 @@ public class IslandsAlg {
 
         FitnessEvaluator<double[]> evaluator = new MultiFitnessFunction(dimension, complexity); // Fitness function
 
-        IslandEvolution<double[]> island_model = null; // your model;
+        Migration migration = new RingMigration();
+
+        IslandEvolution<double[]> island_model = new IslandEvolution<double[]>(5,
+                migration, factory, pipeline, evaluator, selection, random); // your model;
 
         island_model.addEvolutionObserver(new IslandEvolutionObserver() {
             public void populationUpdate(PopulationData populationData) {
                 double bestFit = populationData.getBestCandidateFitness();
                 System.out.println("Epoch " + populationData.getGenerationNumber() + ": " + bestFit);
-                System.out.println("\tEpoch best solution = " + Arrays.toString((double[])populationData.getBestCandidate()));
+                System.out.println("\tEpoch best solution = " + Arrays.toString((double[]) populationData.getBestCandidate()));
             }
 
             public void islandPopulationUpdate(int i, PopulationData populationData) {
                 double bestFit = populationData.getBestCandidateFitness();
                 System.out.println("Island " + i);
                 System.out.println("\tGeneration " + populationData.getGenerationNumber() + ": " + bestFit);
-                System.out.println("\tBest solution = " + Arrays.toString((double[])populationData.getBestCandidate()));
+                System.out.println("\tBest solution = " + Arrays.toString((double[]) populationData.getBestCandidate()));
             }
         });
 
         TerminationCondition terminate = new GenerationCount(generations);
-        island_model.evolve(populationSize, 1, 50, 2, terminate);
+
+        long startTime = System.nanoTime();
+        island_model.evolve(populationSize, 1, epochLength, 2, terminate);
+        long endTime = System.nanoTime();
+
+        long duration = (endTime - startTime);
+        System.out.println("Time to calc: " + (duration / 1000000L));
     }
 }

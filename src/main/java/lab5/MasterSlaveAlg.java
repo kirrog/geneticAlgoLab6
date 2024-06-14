@@ -12,10 +12,10 @@ import java.util.Random;
 public class MasterSlaveAlg {
 
     public static void main(String[] args) {
-        int dimension = 10; // dimension of problem
-        int complexity = 1; // fitness estimation time multiplicator
+        int dimension = 50; // dimension of problem
+        int complexity = 0; // fitness estimation time multiplicator
         int populationSize = 50; // size of population
-        int generations = 100; // number of generations
+        int generations = 500; // number of generations
 
         Random random = new Random(); // random
 
@@ -39,11 +39,18 @@ public class MasterSlaveAlg {
             public void populationUpdate(PopulationData populationData) {
                 double bestFit = populationData.getBestCandidateFitness();
                 System.out.println("Generation " + populationData.getGenerationNumber() + ": " + bestFit);
-                System.out.println("\tBest solution = " + Arrays.toString((double[])populationData.getBestCandidate()));
+                System.out.println("\tBest solution = " + Arrays.toString((double[]) populationData.getBestCandidate()));
             }
         });
 
         TerminationCondition terminate = new GenerationCount(generations);
+        long startTime = System.nanoTime();
+
         algorithm.evolve(populationSize, 1, terminate);
+        long endTime = System.nanoTime();
+
+        long duration = (endTime - startTime);
+        System.out.println("Time to calc: " + (duration / 1000000L));
+        ;
     }
 }
